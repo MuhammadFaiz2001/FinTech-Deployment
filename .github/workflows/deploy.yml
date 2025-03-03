@@ -1,0 +1,26 @@
+name: Deploy Todo API to Azure
+on:
+  push:
+    branches: [ main ]
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Get the latest code
+        uses: actions/checkout@v3
+      - name: Install .NET 6.0
+        uses: actions/setup-dotnet@v3
+        with:
+          dotnet-version: '6.0.x'
+      - name: Fetch project dependencies
+        run: dotnet restore
+      - name: Compile the app
+        run: dotnet build --configuration Release --no-restore
+      - name: Package the app for deployment
+        run: dotnet publish -c Release -o ./myapp
+      - name: Send app to Azure
+        uses: azure/webapps-deploy@v2
+        with:
+          app-name: 'MyFinTechApp-MF2001'
+          publish-profile: ${{ secrets.AZURE_PUBLISH_PROFILE }}
+          package: './myapp'
